@@ -11,25 +11,23 @@ return Application::configure(basePath: dirname(__DIR__))
     commands: __DIR__ . '/../routes/console.php',
     health: '/up',
   )
-  ->withMiddleware(function (Middleware $middleware): void {
+  ->withMiddleware(function (Middleware $middleware) {
     $middleware->api(prepend: [
       \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+      \App\Http\Middleware\Cors::class, // Pastikan ini ada
     ]);
 
     $middleware->alias([
-      'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
-    ]);
-
-    $middleware->alias([
+      'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
       'admin' => \App\Http\Middleware\AdminMiddleware::class,
+      'cors' => \App\Http\Middleware\Cors::class, // Register alias 'cors'
     ]);
 
     $middleware->validateCsrfTokens(except: [
       'api/*',
+      'sanctum/csrf-cookie',
     ]);
-
-    //
   })
-  ->withExceptions(function (Exceptions $exceptions): void {
+  ->withExceptions(function (Exceptions $exceptions) {
     //
   })->create();
